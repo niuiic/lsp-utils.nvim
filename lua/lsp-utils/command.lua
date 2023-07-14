@@ -1,6 +1,6 @@
 local static = require("lsp-utils.static")
 local lsp = require("lsp-utils.lsp")
-local lua = require("niuiic-core").lua
+local lua = require("core").lua
 
 local registered_commands = {}
 

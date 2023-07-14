@@ -1,4 +1,4 @@
-local lua = require("niuiic-core").lua
+local lua = require("core").lua
 
 local get_active_clients = function()
 	local lsps = vim.lsp.get_active_clients()
