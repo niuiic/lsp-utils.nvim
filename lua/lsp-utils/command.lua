@@ -1,5 +1,5 @@
 local static = require("lsp-utils.static")
-local lsp = require("lsp-utils.lsp")
+local utils = require("lsp-utils.utils")
 local lua = require("core").lua
 
 local registered_commands = {}
@@ -9,11 +9,9 @@ local create_user_commands = function()
 	registered_commands = {}
 	for _, lsp_config in pairs(static.config.lsps) do
 		for _, command_map in ipairs(lsp_config.commands_map) do
-			if
-				lua.list.includes(registered_commands, function(v)
-					return v == command_map.map[2]
-				end) == false
-			then
+			if not lua.list.includes(registered_commands, function(v)
+				return v == command_map.map[2]
+			end) then
 				table.insert(registered_commands, command_map.map[2])
 			end
 		end
@@ -21,13 +19,13 @@ local create_user_commands = function()
 
 	for _, command in ipairs(registered_commands) do
 		vim.api.nvim_create_user_command(command, function()
-			local active_clients = lsp.get_active_clients()
+			local active_clients = utils.get_active_clients()
 
-			-- filter to get available clients
+			-- get available clients
 			---@type {name: string, command: string}[]
 			local available_clients = {}
 			for lsp_name, lsp_config in pairs(static.config.lsps) do
-				-- filter client which is not working
+				-- exclude client which is not working
 				if lua.list.includes(active_clients, function(v)
 					return lsp_name == v
 				end) == false then
@@ -48,9 +46,13 @@ local create_user_commands = function()
 
 			-- exec command
 			if #available_clients == 0 then
-				vim.notify("no active lsp client supports this command", vim.log.levels.WARN)
+				vim.notify("no active lsp client supports this command", vim.log.levels.WARN, {
+					title = "LSP",
+				})
 			elseif #available_clients == 1 then
-				vim.notify(available_clients[1].name .. " is working", vim.log.levels.INFO)
+				vim.notify(available_clients[1].name .. " is working", vim.log.levels.INFO, {
+					title = "LSP",
+				})
 				vim.cmd(available_clients[1].command)
 			else
 				local clients = lua.list.map(available_clients, function(client)
@@ -60,7 +62,9 @@ local create_user_commands = function()
 					local client = lua.list.filter(available_clients, function(client)
 						return client.name == choice
 					end)[1]
-					vim.notify(client.name .. " is working", vim.log.levels.INFO)
+					vim.notify(client.name .. " is working", vim.log.levels.INFO, {
+						title = "LSP",
+					})
 					vim.cmd(client.command)
 				end)
 			end

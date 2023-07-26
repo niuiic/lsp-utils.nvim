@@ -1,8 +1,7 @@
 local lua = require("core").lua
 
 local get_active_clients = function()
-	local lsps = vim.lsp.get_active_clients()
-	return lua.list.map(lsps, function(lsp)
+	return lua.list.map(vim.lsp.get_clients(), function(lsp)
 		return lsp.name
 	end)
 end
