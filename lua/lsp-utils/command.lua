@@ -1,6 +1,6 @@
 local static = require("lsp-utils.static")
 local utils = require("lsp-utils.utils")
-local lua = require("core").lua
+local core = require("core")
 
 local registered_commands = {}
 
@@ -9,9 +9,11 @@ local create_user_commands = function()
 	registered_commands = {}
 	for _, lsp_config in pairs(static.config.lsps) do
 		for _, command_map in ipairs(lsp_config.commands_map) do
-			if not lua.list.includes(registered_commands, function(v)
-				return v == command_map.map[2]
-			end) then
+			if
+				not core.lua.list.includes(registered_commands, function(v)
+					return v == command_map.map[2]
+				end)
+			then
 				table.insert(registered_commands, command_map.map[2])
 			end
 		end
@@ -26,7 +28,7 @@ local create_user_commands = function()
 			local available_clients = {}
 			for lsp_name, lsp_config in pairs(static.config.lsps) do
 				-- exclude client which is not working
-				if lua.list.includes(active_clients, function(v)
+				if core.lua.list.includes(active_clients, function(v)
 					return lsp_name == v
 				end) == false then
 					goto continue
@@ -55,11 +57,11 @@ local create_user_commands = function()
 				})
 				vim.cmd(available_clients[1].command)
 			else
-				local clients = lua.list.map(available_clients, function(client)
+				local clients = core.lua.list.map(available_clients, function(client)
 					return client.name
 				end)
 				vim.ui.select(clients, { prompt = "select specific lsp" }, function(choice)
-					local client = lua.list.filter(available_clients, function(client)
+					local client = core.lua.list.filter(available_clients, function(client)
 						return client.name == choice
 					end)[1]
 					vim.notify(client.name .. " is working", vim.log.levels.INFO, {
