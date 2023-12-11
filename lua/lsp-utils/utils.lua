@@ -1,7 +1,12 @@
 local core = require("core")
 
 local get_active_clients = function()
-	local clients = vim.lsp.get_clients()
+	local clients
+	if vim.version().minor >= 10 then
+		clients = vim.lsp.get_clients()
+	else
+		clients = vim.lsp.get_active_clients()
+	end
 
 	local bufnr = vim.api.nvim_get_current_buf()
 	clients = core.lua.list.filter(clients, function(client)
